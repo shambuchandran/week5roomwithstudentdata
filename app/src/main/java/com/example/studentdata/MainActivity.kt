@@ -84,14 +84,29 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-    private suspend fun displayData(student: Student){
-        withContext(Dispatchers.Main) {
-            binding.tvFirstName.text = student.firstName
-            binding.tvLastName.text = student.lastName
-            binding.tvRollNo.text = student.rollNo.toString()
+    private suspend fun displayData(student: Student?){
+//        withContext(Dispatchers.Main) {
+//            binding.tvFirstName.text = student.firstName
+//            binding.tvLastName.text = student.lastName
+//            binding.tvRollNo.text = student.rollNo.toString()
+//        }
+        student?.let {
+            withContext(Dispatchers.Main) {
+                binding.tvFirstName.text = it.firstName
+                binding.tvLastName.text = it.lastName
+                binding.tvRollNo.text = it.rollNo.toString()
+            }
+        } ?: run {
+            // Handle case where student is null, for example, clear text views
+            withContext(Dispatchers.Main) {
+                binding.tvFirstName.text = "No data"
+                binding.tvLastName.text = "No data"
+                binding.tvRollNo.text = "No data"
+            }
         }
-
     }
+
+
 
     private fun readData(){
         val rollNo=binding.etRollNoRead.text.toString()
