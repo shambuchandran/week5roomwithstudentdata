@@ -11,6 +11,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -35,14 +36,41 @@ class MainActivity : AppCompatActivity() {
         binding.btnReadData.setOnClickListener {
             readData()
         }
+        binding.btnDeleteAll.setOnClickListener {
+            GlobalScope.launch {
+                database.studentDao().deleteAll()
+            }
+        }
+        binding.updatebtn.setOnClickListener {
+            updateData()
+        }
 
     }
+    private fun updateData() {
+        val firstname=binding.etFirstName.text.toString()
+        val lastname=binding.etLastName.text.toString()
+        val rollno=binding.etRollNo.text.toString()
+        if (firstname.isNotEmpty()&&lastname.isNotEmpty()&&rollno.isNotEmpty()){
+            GlobalScope.launch (Dispatchers.IO){
+                database.studentDao().update(firstname,lastname,rollno.toInt())
+            }
+            binding.etFirstName.text.clear()
+            binding.etLastName.text.clear()
+            binding.etRollNo.text.clear()
+            Toast.makeText(this@MainActivity, "Successfully updated", Toast.LENGTH_SHORT).show()
+
+        }else{
+            Toast.makeText(this@MainActivity, "Please enter details", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
     private fun writeData(){
         val firstname=binding.etFirstName.text.toString()
         val lastname=binding.etLastName.text.toString()
         val rollno=binding.etRollNo.text.toString()
         if (firstname.isNotEmpty()&&lastname.isNotEmpty()&&rollno.isNotEmpty()){
-            val student=Student(0,firstname,lastname,rollno.toInt())
+            val student=Student(null,firstname,lastname,rollno.toInt())
             GlobalScope.launch (Dispatchers.IO){
                 database.studentDao().insert(student)
         }
@@ -56,15 +84,17 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-    private fun displayData(student: Student){
-            binding.tvFirstName.text=student.firstName
-            binding.tvLastName.text=student.lastName
-            binding.tvRollNo.text=student.rollNo.toString()
+    private suspend fun displayData(student: Student){
+        withContext(Dispatchers.Main) {
+            binding.tvFirstName.text = student.firstName
+            binding.tvLastName.text = student.lastName
+            binding.tvRollNo.text = student.rollNo.toString()
+        }
 
     }
 
     private fun readData(){
-        val rollNo=binding.etRollNo.text.toString()
+        val rollNo=binding.etRollNoRead.text.toString()
         if (rollNo.isNotEmpty()){
             var student:Student
             GlobalScope.launch(Dispatchers.IO) {

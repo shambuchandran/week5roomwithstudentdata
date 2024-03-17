@@ -20,6 +20,8 @@ interface StudentDao {
 
    @Delete
    suspend fun delete(student: Student)
+   @Query("UPDATE student_table SET firstName=:firstname,lastName=:lastname WHERE rollNo LIKE :roll")
+   suspend fun update(firstname:String,lastname:String,roll: Int)
 
    @Query("DELETE FROM student_table")
    suspend fun deleteAll()
